@@ -17,6 +17,16 @@ export function Markdown({
       isAnimating={isStreaming}
       shikiTheme={["github-light", "github-dark"]}
       components={COMPONENTS as any}
+      controls={{
+        table: true,
+        code: true,
+        mermaid: {
+          download: true,
+          copy: true,
+          fullscreen: false,
+          panZoom: false,
+        },
+      }}
     >
       {children}
     </Streamdown>
