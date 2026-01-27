@@ -125,6 +125,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       mode: "manual",
       autoPrompt: "Analyze this screenshot and provide insights",
       enabled: true,
+      interval: 5000, // 5 seconds
+      autoCapture: false,
     });
 
   // Unified Customizable State
@@ -211,6 +213,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
               parsed.autoPrompt ||
               "Analyze this screenshot and provide insights",
             enabled: parsed.enabled !== undefined ? parsed.enabled : false,
+            autoCapture: parsed.autoCapture || false,
+            interval: parsed.interval || 5000,
           });
         }
       } catch {

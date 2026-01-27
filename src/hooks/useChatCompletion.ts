@@ -83,17 +83,20 @@ export const useChatCompletion = (
   const screenshotConfigRef = useRef(screenshotConfiguration);
   const hasCheckedPermissionRef = useRef(false);
   const screenshotInitiatedByThisContext = useRef(false);
-
   useEffect(() => {
     screenshotConfigRef.current = screenshotConfiguration;
   }, [screenshotConfiguration]);
 
-  const scrollToBottom = () => {
+  // Simple scroll to bottom - only called explicitly after user actions
+  const scrollToBottom = useCallback(() => {
     const responseSettings = getResponseSettings();
-    if (responseSettings.autoScroll) {
+    if (!responseSettings.autoScroll) return;
+
+    // Use setTimeout to ensure DOM has updated
+    setTimeout(() => {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }
-  };
+    }, 50);
+  }, []);
 
   const setInput = useCallback((value: string) => {
     setState((prev) => ({ ...prev, input: value }));
@@ -220,7 +223,7 @@ export const useChatCompletion = (
         }));
 
         // Scroll to bottom after adding user message
-        setTimeout(scrollToBottom, 100);
+        scrollToBottom();
 
         let fullResponse = "";
 
@@ -276,9 +279,6 @@ export const useChatCompletion = (
             }
 
             setMessages(updatedWithResponse);
-
-            // Auto-scroll during streaming
-            scrollToBottom();
           }
         } catch (e: any) {
           // Only show error if this is still the current request and not aborted
@@ -298,6 +298,9 @@ export const useChatCompletion = (
         }
 
         setState((prev) => ({ ...prev, isLoading: false }));
+
+        // Scroll to bottom after streaming completes
+        scrollToBottom();
 
         // Focus input after AI response is complete
         setTimeout(() => {

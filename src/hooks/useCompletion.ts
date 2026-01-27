@@ -1004,6 +1004,51 @@ export const useCompletion = () => {
     inputRef,
   ]);
 
+  // Refs for auto-capture to avoid resetting interval
+  const isLoadingRef = useRef(state.isLoading);
+  const isScreenshotLoadingRef = useRef(isScreenshotLoading);
+  const captureScreenshotRef = useRef(captureScreenshot);
+
+  useEffect(() => {
+    isLoadingRef.current = state.isLoading;
+  }, [state.isLoading]);
+
+  useEffect(() => {
+    isScreenshotLoadingRef.current = isScreenshotLoading;
+  }, [isScreenshotLoading]);
+
+  useEffect(() => {
+    captureScreenshotRef.current = captureScreenshot;
+  }, [captureScreenshot]);
+
+  // Auto-capture screenshots at interval when enabled
+  useEffect(() => {
+    if (!screenshotConfiguration.autoCapture || screenshotConfiguration.mode !== "auto") {
+      return;
+    }
+
+    const intervalMs = screenshotConfiguration.interval || 5000;
+    console.log(`[Auto-capture] Starting interval: ${intervalMs}ms`);
+
+    const intervalId = setInterval(() => {
+      console.log(`[Auto-capture] Interval fired - isLoading: ${isLoadingRef.current}, isScreenshotLoading: ${isScreenshotLoadingRef.current}`);
+      // Don't capture if already loading
+      if (!isLoadingRef.current && !isScreenshotLoadingRef.current) {
+        console.log("[Auto-capture] Capturing screenshot...");
+        captureScreenshotRef.current();
+      }
+    }, intervalMs);
+
+    return () => {
+      console.log("[Auto-capture] Clearing interval");
+      clearInterval(intervalId);
+    };
+  }, [
+    screenshotConfiguration.autoCapture,
+    screenshotConfiguration.mode,
+    screenshotConfiguration.interval,
+  ]);
+
   return {
     input: state.input,
     setInput,

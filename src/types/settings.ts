@@ -44,6 +44,8 @@ export interface ScreenshotConfig {
   mode: ScreenshotMode;
   autoPrompt: string;
   enabled: boolean;
+  interval?: number; // Interval in ms for auto capture (default: 5000)
+  autoCapture?: boolean; // Whether to auto-capture at interval
 }
 
 // Speech-to-Text provider types

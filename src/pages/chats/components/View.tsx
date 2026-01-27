@@ -65,16 +65,7 @@ const View = () => {
     getMessages();
   }, [conversationId]);
 
-  useEffect(() => {
-    // Scroll to bottom when messages load
-    if (messages?.messages.length) {
-      setTimeout(() => {
-        completion.messagesEndRef.current?.scrollIntoView({
-          behavior: "smooth",
-        });
-      }, 100);
-    }
-  }, [messages?.messages.length]);
+  // Scroll effect removed - handled by useChatCompletion hook
 
   const handleDelete = async () => {
     await confirmDelete();

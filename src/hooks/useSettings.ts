@@ -61,6 +61,24 @@ export const useSettings = () => {
     );
   };
 
+  const handleAutoCaptureChange = (autoCapture: boolean) => {
+    const newConfig = { ...screenshotConfiguration, autoCapture };
+    setScreenshotConfiguration(newConfig);
+    safeLocalStorage.setItem(
+      STORAGE_KEYS.SCREENSHOT_CONFIG,
+      JSON.stringify(newConfig)
+    );
+  };
+
+  const handleIntervalChange = (interval: number) => {
+    const newConfig = { ...screenshotConfiguration, interval };
+    setScreenshotConfiguration(newConfig);
+    safeLocalStorage.setItem(
+      STORAGE_KEYS.SCREENSHOT_CONFIG,
+      JSON.stringify(newConfig)
+    );
+  };
+
   useEffect(() => {
     if (selectedAIProvider.provider) {
       const provider = allAiProviders.find(
@@ -100,6 +118,8 @@ export const useSettings = () => {
     handleScreenshotModeChange,
     handleScreenshotPromptChange,
     handleScreenshotEnabledChange,
+    handleAutoCaptureChange,
+    handleIntervalChange,
     allAiProviders,
     allSttProviders,
     selectedAIProvider,

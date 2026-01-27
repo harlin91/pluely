@@ -9,6 +9,8 @@ export interface UseSettingsReturn {
   handleScreenshotModeChange: (value: ScreenshotMode) => void;
   handleScreenshotPromptChange: (value: string) => void;
   handleScreenshotEnabledChange: (enabled: boolean) => void;
+  handleAutoCaptureChange: (autoCapture: boolean) => void;
+  handleIntervalChange: (interval: number) => void;
   allAiProviders: TYPE_PROVIDER[];
   allSttProviders: TYPE_PROVIDER[];
   selectedAIProvider: { provider: string; variables: Record<string, string> };

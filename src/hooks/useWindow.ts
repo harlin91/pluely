@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
 // Helper function to check if any popover is open in the DOM
 const isAnyPopoverOpen = (): boolean => {
@@ -11,11 +11,19 @@ const isAnyPopoverOpen = (): boolean => {
 };
 
 export const useWindowResize = () => {
+  // Track the current expanded state to avoid unnecessary resize calls
+  const currentExpandedRef = useRef<boolean | null>(null);
+
   const resizeWindow = useCallback(async (expanded: boolean) => {
     try {
       const window = getCurrentWebviewWindow();
 
       if (!expanded && isAnyPopoverOpen()) {
+        return;
+      }
+
+      // Skip if already in the requested state
+      if (currentExpandedRef.current === expanded) {
         return;
       }
 
@@ -25,6 +33,8 @@ export const useWindowResize = () => {
         window,
         height: newHeight,
       });
+
+      currentExpandedRef.current = expanded;
     } catch (error) {
       console.error("Failed to resize window:", error);
     }
@@ -33,6 +43,7 @@ export const useWindowResize = () => {
   // Setup drag handling and popover monitoring
   useEffect(() => {
     let isDragging = false;
+    let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
 
     const handleMouseDown = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
@@ -56,15 +67,24 @@ export const useWindowResize = () => {
     };
 
     const observer = new MutationObserver(() => {
-      if (!isAnyPopoverOpen()) {
-        resizeWindow(false);
+      // Debounce the mutation observer callback to avoid rapid-fire resize calls
+      // This prevents glitches during streaming when DOM updates frequently
+      if (debounceTimeout) {
+        clearTimeout(debounceTimeout);
       }
+
+      debounceTimeout = setTimeout(() => {
+        if (!isAnyPopoverOpen()) {
+          resizeWindow(false);
+        }
+      }, 150);
     });
 
     // Observe the body for changes to detect popover open/close
+    // Only watch for data-state changes on popover elements, not all DOM mutations
     observer.observe(document.body, {
       childList: true,
-      subtree: true,
+      subtree: false, // Only watch direct children, not the entire subtree
       attributes: true,
       attributeFilter: ["data-state"],
     });
@@ -76,6 +96,9 @@ export const useWindowResize = () => {
       document.removeEventListener("mousedown", handleMouseDown);
       document.removeEventListener("mouseup", handleMouseUp);
       observer.disconnect();
+      if (debounceTimeout) {
+        clearTimeout(debounceTimeout);
+      }
     };
   }, [resizeWindow]);
 

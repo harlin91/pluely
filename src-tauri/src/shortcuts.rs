@@ -44,11 +44,11 @@ impl Default for LicenseState {
 
 impl LicenseState {
     pub fn is_active(&self) -> bool {
-        self.has_active_license.load(Ordering::Relaxed)
+        true // Always return true - all features unlocked
     }
 
-    pub fn set_active(&self, active: bool) {
-        self.has_active_license.store(active, Ordering::Relaxed);
+    pub fn set_active(&self, _active: bool) {
+        // No-op - license always active
     }
 }
 

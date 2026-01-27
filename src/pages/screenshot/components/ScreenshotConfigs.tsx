@@ -6,6 +6,7 @@ import {
   SelectItem,
   SelectTrigger,
   Header,
+  Switch,
 } from "@/components";
 import { UseSettingsReturn } from "@/types";
 import { LaptopMinimalIcon, MousePointer2Icon } from "lucide-react";
@@ -15,6 +16,8 @@ export const ScreenshotConfigs = ({
   handleScreenshotModeChange,
   handleScreenshotPromptChange,
   handleScreenshotEnabledChange,
+  handleAutoCaptureChange,
+  handleIntervalChange,
   hasActiveLicense,
 }: UseSettingsReturn) => {
   return (
@@ -109,18 +112,54 @@ export const ScreenshotConfigs = ({
 
         {/* Auto Prompt Input - Only show when auto mode is selected */}
         {screenshotConfiguration.mode === "auto" && (
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">Auto Prompt</Label>
-            <Input
-              placeholder="Enter prompt for automatic screenshot analysis..."
-              value={screenshotConfiguration.autoPrompt}
-              onChange={(e) => handleScreenshotPromptChange(e.target.value)}
-              className="w-full h-11 border-1 border-input/50 focus:border-primary/50 transition-colors"
-            />
-            <p className="text-xs text-muted-foreground">
-              This prompt will be used automatically when screenshots are taken
-            </p>
-          </div>
+          <>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Auto Prompt</Label>
+              <Input
+                placeholder="Enter prompt for automatic screenshot analysis..."
+                value={screenshotConfiguration.autoPrompt}
+                onChange={(e) => handleScreenshotPromptChange(e.target.value)}
+                className="w-full h-11 border-1 border-input/50 focus:border-primary/50 transition-colors"
+              />
+              <p className="text-xs text-muted-foreground">
+                This prompt will be used automatically when screenshots are taken
+              </p>
+            </div>
+
+            {/* Auto Capture Toggle */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="text-sm font-medium">Continuous Capture</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Automatically capture screenshots at regular intervals
+                  </p>
+                </div>
+                <Switch
+                  checked={screenshotConfiguration.autoCapture || false}
+                  onCheckedChange={handleAutoCaptureChange}
+                />
+              </div>
+            </div>
+
+            {/* Interval Setting - Only show when auto capture is enabled */}
+            {screenshotConfiguration.autoCapture && (
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Capture Interval (seconds)</Label>
+                <Input
+                  type="number"
+                  min={1}
+                  max={60}
+                  value={(screenshotConfiguration.interval || 5000) / 1000}
+                  onChange={(e) => handleIntervalChange(Number(e.target.value) * 1000)}
+                  className="w-full h-11 border-1 border-input/50 focus:border-primary/50 transition-colors"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Screenshots will be captured every {(screenshotConfiguration.interval || 5000) / 1000} seconds
+                </p>
+              </div>
+            )}
+          </>
         )}
       </div>
 
