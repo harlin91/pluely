@@ -60,7 +60,7 @@ jobs:
         run: npm ci
 
       - name: Build & publish
-        uses: tauri-apps/tauri-action@v0.5.16
+        uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           API_ACCESS_KEY: ${{ secrets.API_ACCESS_KEY }}
@@ -76,12 +76,14 @@ jobs:
           includeUpdaterJson: true
           updaterJsonPreferNsis: true
           args: ${{ matrix.args }}
+
       - name: Upload Build Artifacts
+        if: always() # Forces upload even if the "Build & publish" step fails
         uses: actions/upload-artifact@v4
         with:
           name: pluely-build-${{ matrix.platform }}-${{ strategy.job-index }}
           path: |
-            src-tauri/target/release/bundle/dmg/*.dmg
-            src-tauri/target/release/bundle/macos/*.app
-            src-tauri/target/release/bundle/msi/*.msi
-            src-tauri/target/release/bundle/deb/*.deb
+            src-tauri/target/**/bundle/dmg/*.dmg
+            src-tauri/target/**/bundle/macos/*.app
+            src-tauri/target/**/bundle/msi/*.msi
+            src-tauri/target/**/bundle/deb/*.deb
